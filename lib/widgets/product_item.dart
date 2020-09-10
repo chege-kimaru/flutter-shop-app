@@ -19,6 +19,7 @@ class ProductItem extends StatelessWidget {
     // Note you can use Consumer completely alone as well, it doesn't need Provider.of
     final Product product = Provider.of<Product>(context, listen: false);
     final Cart cart = Provider.of<Cart>(context, listen: false);
+    final scaffold = Scaffold.of(context);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
@@ -48,8 +49,13 @@ class ProductItem extends StatelessWidget {
                       : Icons.favorite_border,
                   color: Theme.of(context).accentColor,
                 ),
-                onPressed: () {
-                  product.toggleFavoriteStatus();
+                onPressed: () async {
+                  try {
+                    await product.toggleFavoriteStatus();
+                  } catch (error) {
+                    scaffold.showSnackBar(
+                        SnackBar(content: Text('Could not favorite product')));
+                  }
                 },
               ),
               // child will be assed to the child argument in builder
