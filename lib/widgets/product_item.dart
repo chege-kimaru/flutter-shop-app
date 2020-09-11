@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop_app/providers/auth.dart';
 import 'package:shop_app/providers/cart.dart';
 
 import '../providers/product.dart';
@@ -19,6 +20,7 @@ class ProductItem extends StatelessWidget {
     // Note you can use Consumer completely alone as well, it doesn't need Provider.of
     final Product product = Provider.of<Product>(context, listen: false);
     final Cart cart = Provider.of<Cart>(context, listen: false);
+    final Auth auth = Provider.of<Auth>(context, listen: false);
     final scaffold = Scaffold.of(context);
 
     return ClipRRect(
@@ -29,10 +31,14 @@ class ProductItem extends StatelessWidget {
               .pushNamed(ProductDetailsScreen.routeName, arguments: product.id);
         },
         child: GridTile(
-          child: Image.network(
-            product.imageUrl,
-            fit: BoxFit.cover,
-            width: double.infinity,
+          child: Hero(
+            tag: product.id,
+            child: FadeInImage(
+                placeholder:
+                    AssetImage('assets/images/product-placeholder.png'),
+                image: NetworkImage(product.imageUrl),
+                fit: BoxFit.cover,
+                width: double.infinity),
           ),
           footer: GridTileBar(
             backgroundColor: Colors.black54,
@@ -51,7 +57,7 @@ class ProductItem extends StatelessWidget {
                 ),
                 onPressed: () async {
                   try {
-                    await product.toggleFavoriteStatus();
+                    await product.toggleFavoriteStatus(auth.token, auth.userId);
                   } catch (error) {
                     scaffold.showSnackBar(
                         SnackBar(content: Text('Could not favorite product')));
